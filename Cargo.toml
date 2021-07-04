@@ -1,0 +1,16 @@
+[package]
+edition = "2018"
+name = "grafite"
+version = "0.1.0"
+
+[dependencies]
+clap = {version = "3.0.0-beta.2", features = ["yaml"]}
+gfa = "0.10"
+handlegraph = {git = "https://github.com/chfi/rs-handlegraph.git"}
+quick-csv = "0.1.6"
+rustc-hash = "1"
+
+# Logging and error management
+bio = "*"
+env_logger = "0.7"
+log = "0.4"

@@ -1,0 +1,20 @@
+name: ./grafite
+about: Mitchell R. Vollger's GFA utilities
+args:
+    - threads :
+        short : t
+        long : threads
+        help : Number of threads to use
+        takes_value : true
+        global : true 
+subcommands:
+    - bubble:
+        about: Get fasta sequence for nodes with in and out degree 1 in a GFA (v1.0) 
+        args:
+            - GFA:
+                about: GFA file 
+                index : 1
+            - extend:
+                short: e
+                long : extend
+                help: Extend the sequence into the flanking nodes
