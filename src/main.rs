@@ -9,7 +9,7 @@ use handlegraph::{
     //mutablehandlegraph::{AdditiveHandleGraph, MutableHandles},
 };
 use rustc_hash::FxHashMap;
-use std::str;
+use std::{str, usize};
 
 fn get_node_seq(node: &Handle, graph: &HashGraph) -> String {
     let mut seq: Vec<u8> = graph.sequence(*node).collect();
@@ -25,14 +25,15 @@ fn main() {
         .version(crate_version!())
         .setting(AppSettings::SubcommandRequiredElseHelp);
     let matches = app.get_matches();
-
+    let _threads: usize = matches.value_of_t("threads").unwrap();
     if let Some(matches) = matches.subcommand_matches("bubble") {
         run_bubble(matches);
     }
 }
 
 fn run_bubble(args: &clap::ArgMatches) {
-    let gfa_file = args.value_of("GFA").unwrap_or("/dev/stdin");
+    let gfa_file = args.value_of("GFA").unwrap();
+    eprintln!("Reading from: {}", gfa_file);
     let extend = args.is_present("extend");
 
     let parser = GFAParser::new();
