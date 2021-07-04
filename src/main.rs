@@ -31,6 +31,17 @@ fn main() {
     }
 }
 
+fn extend_seq(node: &Handle, graph: &HashGraph, direction: Direction) -> String {
+    let mut neighbors: Vec<Handle> = graph.neighbors(*node, direction).collect();
+    let mut seq = "".to_string();
+    while neighbors.len() == 1 {
+        let neighbor = neighbors[0];
+        seq.push_str(&get_node_seq(&neighbor, &graph));
+        neighbors = graph.neighbors(neighbor, direction).collect();
+    }
+    seq
+}
+
 fn run_bubble(args: &clap::ArgMatches) {
     let gfa_file = args.value_of("GFA").unwrap();
     eprintln!("Reading from: {}", gfa_file);
@@ -46,22 +57,16 @@ fn run_bubble(args: &clap::ArgMatches) {
         node.unpack_number();
         graph.node_len(node);
         let _seq: Vec<u8> = graph.sequence(node).collect();
-        //println!("{}", str::from_utf8(&seq).unwrap());
-        let left: Vec<Handle> = graph.neighbors(node, Direction::Left).collect();
-        let right: Vec<Handle> = graph.neighbors(node, Direction::Right).collect();
-        if left.len() == 1 && right.len() == 1 && extend {
-            let left = left[0];
-            let right = right[0];
+
+        if extend {
+            let left_seq = extend_seq(&node, &graph, Direction::Left);
+            let right_seq = extend_seq(&node, &graph, Direction::Right);
             println!(
-                ">{} left:{}{} right:{}{}\n{}{}{}",
+                ">{}\n{}{}{}",
                 node.id(),
-                if left.is_reverse() { "-" } else { "" },
-                left.id(),
-                if right.is_reverse() { "-" } else { "" },
-                right.id(),
-                get_node_seq(&left, &graph),
+                left_seq,
                 get_node_seq(&node, &graph),
-                get_node_seq(&right, &graph),
+                right_seq
             );
         }
     }
