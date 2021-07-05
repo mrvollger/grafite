@@ -34,8 +34,13 @@ fn main() {
 fn extend_seq(node: &Handle, graph: &HashGraph, direction: Direction) -> String {
     let mut neighbors: Vec<Handle> = graph.neighbors(*node, direction).collect();
     let mut seq = "".to_string();
+    let mut seen = Vec::new();
     while neighbors.len() == 1 {
         let neighbor = neighbors[0];
+        if seen.contains(&neighbor.id()) {
+            break;
+        }
+        seen.push(neighbor.id());
         seq.push_str(&get_node_seq(&neighbor, &graph));
         neighbors = graph.neighbors(neighbor, direction).collect();
     }
