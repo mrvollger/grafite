@@ -9,7 +9,7 @@ use handlegraph::{
     //mutablehandlegraph::{AdditiveHandleGraph, MutableHandles},
 };
 use rustc_hash::FxHashMap;
-use std::{str, usize};
+use std::{cmp::min, str, usize};
 
 fn get_node_seq(node: &Handle, graph: &HashGraph) -> String {
     let mut seq: Vec<u8> = graph.sequence(*node).collect();
@@ -47,6 +47,27 @@ fn extend_seq(node: &Handle, graph: &HashGraph, direction: Direction) -> String 
     seq
 }
 
+fn extend_by_length(
+    node: &Handle,
+    graph: &HashGraph,
+    direction: Direction,
+    e_len: usize,
+) -> String {
+    let neighbors: Vec<Handle> = graph.neighbors(*node, direction).collect();
+    let mut seq = "".to_string();
+    if neighbors.len() == 1 {
+        let neighbor = neighbors[0];
+        let extension = get_node_seq(&neighbor, &graph);
+        let extend_len = min(extension.len(), e_len);
+        if direction == Direction::Left {
+            seq = extension[(extension.len() - extend_len)..extension.len()].to_string();
+        } else if direction == Direction::Right {
+            seq = extension[0..extend_len].to_string();
+        }
+    }
+    seq
+}
+
 fn run_bubble(args: &clap::ArgMatches) {
     let gfa_file = args.value_of("GFA").unwrap();
     eprintln!("Reading from: {}", gfa_file);
@@ -64,8 +85,8 @@ fn run_bubble(args: &clap::ArgMatches) {
         let _seq: Vec<u8> = graph.sequence(node).collect();
 
         if extend {
-            let left_seq = extend_seq(&node, &graph, Direction::Left);
-            let right_seq = extend_seq(&node, &graph, Direction::Right);
+            let left_seq = extend_by_length(&node, &graph, Direction::Left, 31);
+            let right_seq = extend_by_length(&node, &graph, Direction::Right, 31);
             println!(
                 ">{}\n{}{}{}",
                 node.id(),
